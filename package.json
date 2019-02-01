@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "deploy": "ng build --prod --base-href /webcraft/ --outputPath=release/ && ngh --dir=release/  --branch=production --message=\"Deploy $(date)\""
+    "deploy": "ng build --prod --base-href /webcraft/ --outputPath=release/ && ngh --dir=release/ --message=\"Deploy $(date)\""
   },
   "private": true,
   "dependencies": {
