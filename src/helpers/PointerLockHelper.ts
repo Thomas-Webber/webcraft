@@ -1,6 +1,4 @@
-// http://www.html5rocks.com/en/tutorials/pointerlock/intro/
-
-export class PointerLockHelper {
+export default class PointerLockHelper {
   controls = null;
   blocker = null;
   instructions = null;

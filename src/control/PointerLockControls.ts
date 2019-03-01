@@ -22,7 +22,7 @@ let PointerLockControls = function (camera) {
   let canJump = false;
 
   let velocity = new THREE.Vector3();
-  this.mouse = new THREE.Vector2();
+  this.mouse = new THREE.Vector2(0, 0);
   this.raycaster = new THREE.Raycaster();
 
   const PI_2 = Math.PI / 2;
@@ -37,10 +37,6 @@ let PointerLockControls = function (camera) {
     yawObject.rotation.y -= movementX * 0.002;
     pitchObject.rotation.x -= movementY * 0.002;
     pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
-
-    scope.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    scope.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    scope.raycaster.setFromCamera(scope.mouse, camera);
   };
 
   const onKeyDown = function (event) {
@@ -81,7 +77,6 @@ let PointerLockControls = function (camera) {
   };
 
   let onKeyUp = function (event) {
-
     switch (event.keyCode) {
       case 16: //shift
         shiftDown = false;
@@ -125,13 +120,7 @@ let PointerLockControls = function (camera) {
     return yawObject;
   };
 
-  this.isOnObject = function (boolean) {
-    isOnObject = boolean;
-    canJump = boolean;
-  };
-
   this.update = function (delta) {
-
     if (scope.enabled === false) {
       return;
     }
@@ -164,6 +153,8 @@ let PointerLockControls = function (camera) {
     yawObject.translateX(velocity.x);
     yawObject.translateY(velocity.y);
     yawObject.translateZ(velocity.z);
+
+    scope.raycaster.setFromCamera(scope.mouse, camera);
   };
 
 };
