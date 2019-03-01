@@ -1,48 +1,49 @@
 import * as THREE from 'three';
 
-var PointerLockControls = function (camera) {
+let PointerLockControls = function (camera) {
+  let scope = this;
 
-  var scope = this;
-
-  var pitchObject = new THREE.Object3D();
+  let pitchObject = new THREE.Object3D();
   pitchObject.add(camera);
 
-  var yawObject = new THREE.Object3D();
+  let yawObject = new THREE.Object3D();
   yawObject.position.y = 20;
   yawObject.add(pitchObject);
 
-  var moveForward = false;
-  var moveBackward = false;
-  var moveLeft = false;
-  var moveRight = false;
-  var moveUp = false;
-  var moveDown = false;
-  var shiftDown = false;
+  let moveForward = false;
+  let moveBackward = false;
+  let moveLeft = false;
+  let moveRight = false;
+  let moveUp = false;
+  let moveDown = false;
+  let shiftDown = false;
 
-  var isOnObject = false;
-  var canJump = false;
+  let isOnObject = false;
+  let canJump = false;
 
-  var velocity = new THREE.Vector3();
+  let velocity = new THREE.Vector3();
+  this.mouse = new THREE.Vector2();
+  this.raycaster = new THREE.Raycaster();
 
   const PI_2 = Math.PI / 2;
 
-  var onMouseMove = function (event) {
-
+  const onMouseMove = function (event) {
     if (scope.enabled === false) {
       return;
     }
-
     const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
     const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
     yawObject.rotation.y -= movementX * 0.002;
     pitchObject.rotation.x -= movementY * 0.002;
-
     pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
 
+    scope.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    scope.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    scope.raycaster.setFromCamera(scope.mouse, camera);
   };
 
-  var onKeyDown = function (event) {
+  const onKeyDown = function (event) {
     switch (event.keyCode) {
       case 16: //shift
         shiftDown = true;
@@ -69,23 +70,17 @@ var PointerLockControls = function (camera) {
         break;
 
       case 32: // space
-        // if ( canJump === true ) {
-        //   velocity.y += 10;
-        // }
-        // 	canJump = false;
         if (shiftDown) {
           moveDown = true;
         } else {
           moveUp = true;
         }
-
         break;
-
     }
 
   };
 
-  var onKeyUp = function (event) {
+  let onKeyUp = function (event) {
 
     switch (event.keyCode) {
       case 16: //shift
@@ -147,8 +142,6 @@ var PointerLockControls = function (camera) {
     velocity.z += (-velocity.z) * 0.08 * delta;
     velocity.y += (-velocity.y) * 0.08 * delta;
 
-    // velocity.y -= 0.25 * delta;
-
     if (moveForward) {
       velocity.z -= 0.12 * delta;
     }
@@ -168,23 +161,9 @@ var PointerLockControls = function (camera) {
       velocity.y -= 0.12 * delta;
     }
 
-    // if (isOnObject === true) {
-    // 	velocity.y = Math.max( 0, velocity.y );
-    // }
-
     yawObject.translateX(velocity.x);
     yawObject.translateY(velocity.y);
     yawObject.translateZ(velocity.z);
-
-    // if ( yawObject.position.y < 10 ) {
-    //
-    // velocity.y = 0;
-    // yawObject.position.y = 10;
-    //
-    // canJump = true;
-    //
-    // }
-    // console.log(yawObject.position);
   };
 
 };
