@@ -19,11 +19,9 @@ let camera, scene, renderer;
 let controls, time = Date.now();
 let ray;
 let world = [];
-let lastIntersected = { object: null, initialColor: 0xffffff };
-const INTERSECTED_COLOR = 0xff0000;
 const BOX_SIZE = 10;
 const BOX_COLOR = 0xffffff;
-const BOX_GEOMETRY = new THREE.BoxGeometry( BOX_SIZE, BOX_SIZE, BOX_SIZE);
+const BOX_GEOMETRY = new THREE.BoxGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
 
 init();
 animate();
@@ -45,7 +43,7 @@ function init() {
   const FLOOR_LENGTH = 2;
   for (let x = -FLOOR_LENGTH; x <= FLOOR_LENGTH; x++) {
     for (let z = -FLOOR_LENGTH; z <= FLOOR_LENGTH; z++) {
-      const mat = new THREE.MeshBasicMaterial( {color: BOX_COLOR - Math.abs(x) * Math.abs(z) * 180});
+      const mat = getMaterial(BOX_COLOR - Math.abs(x) * Math.abs(z) * 180);
       const cube = new THREE.Mesh(BOX_GEOMETRY, mat);
       scene.add(cube);
       world.push(cube);
@@ -63,13 +61,14 @@ function init() {
   directionalLight.shadow.camera.near = 2.5;
   scene.add( directionalLight );
 
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({antialias: true});
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   scene.background = new THREE.Color('black');
   document.body.appendChild(renderer.domElement);
   window.addEventListener('resize', onWindowResize, false);
+  document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 }
 
 function onWindowResize() {
@@ -81,34 +80,31 @@ function onWindowResize() {
 function animate() {
   requestAnimationFrame(animate);
   controls.update(Date.now() - time);
-
-  // RAYCAST
-  const intersects = controls.raycaster.intersectObjects(world);
-  const firstIntersectedObject = intersects.length ? intersects[0].object : null;
-  if (lastIntersected.object) {
-    lastIntersected.object.material.color.set(lastIntersected.initialColor);
-  }
-  lastIntersected.object = firstIntersectedObject;
-  if (firstIntersectedObject) {
-    lastIntersected.initialColor = firstIntersectedObject.material.color.getHex();
-    firstIntersectedObject.material.color.set(INTERSECTED_COLOR);
-    showGhostBox(intersects[0]);
-  }
-
   renderer.render(scene, camera);
   time = Date.now();
 }
 
+function onDocumentMouseDown() {
+  const intersects = controls.raycaster.intersectObjects(world);
+  const firstIntersectedObject = intersects.length ? intersects[0].object : null;
+  if (firstIntersectedObject) {
+    const position = firstIntersectedObject.position;
+    const mat = getMaterial(0x00ff00);
+    const cube = new THREE.Mesh(BOX_GEOMETRY, mat);
+    cube.position.set(position.x, position.y, position.z);
 
+    const translation = intersects[0].face.normal.clone().multiplyScalar(BOX_SIZE);
+    cube.position.add(translation);
+    scene.add(cube);
+    world.push(cube);
+  }
+}
 
-
-function showGhostBox(intersection) {
-  const position = intersection.object.position;
-  const mat = new THREE.MeshBasicMaterial( {color: 0x00ff00});
-  const cube = new THREE.Mesh(BOX_GEOMETRY, mat);
-  cube.position.set(position.x, position.y, position.z);
-
-  const translation = intersection.face.normal.clone().multiplyScalar (BOX_SIZE);
-  cube.position.add(translation);
-  scene.add(cube);
+function getMaterial(color) {
+  return new THREE.MeshStandardMaterial({
+    color: color,
+    roughness: 1,
+    metalness: 0,
+    flatShading: true
+  });
 }
