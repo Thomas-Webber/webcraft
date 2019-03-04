@@ -1,3 +1,3 @@
-<app-box-picker></app-box-picker>
-<app-blocker></app-blocker>
-<app-reticle></app-reticle>
+<app-box-picker *ngIf="locked" [(color)]="color" (colorChange)="onColorChange()"></app-box-picker>
+<app-blocker *ngIf="locked" (click)="onBlockerClick()"></app-blocker>
+<app-reticle *ngIf="!locked" [style.color]="color"></app-reticle>

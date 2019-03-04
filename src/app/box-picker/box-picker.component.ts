@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 const COLORS = [
   '#9400D3',
@@ -17,9 +17,18 @@ const COLORS = [
 })
 export class BoxPickerComponent implements OnInit {
   colors = COLORS;
-  color = '';
+  colorString = '';
 
-  constructor() { }
+  @Input()
+  get color(): string {
+    return this.colorString;
+  }
+  set color(val: string) {
+    this.colorString = val;
+    this.colorChange.emit(this.colorString);
+  }
+
+  @Output() colorChange = new EventEmitter();
 
   ngOnInit() {
   }
