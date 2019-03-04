@@ -1,0 +1,63 @@
+@import '../../../theme/variables'
+
+\:host
+  height: $face-width + $box-padding
+  perspective: $face-width * 4
+  perspective-origin: left
+
+.box-faces
+  position: relative
+  width: $face-width
+  transform-style: preserve-3d
+
+.box-face
+  outline: 1px solid rgba(0,0,0,0)
+  position: absolute
+  width: $face-width
+  height: $face-width
+  opacity: 0.98
+  box-shadow: inset 0px 0px $face-width / 3 rgba(0,0,0, 0.4)
+
+.box-face--is-back
+  transform: translateZ(-$face-width / 2) rotateY(180deg)
+  //background-color: #eee
+  background-color: inherit
+
+.box-face--is-right
+  transform: rotateY(-270deg) translateX($face-width / 2)
+  transform-origin: top right
+  //background-color: #ddd
+  background-color: inherit
+
+.box-face--is-left
+  transform: rotateY(270deg) translateX(-$face-width / 2)
+  transform-origin: center left
+  //background-color: #ddd
+  background-color: inherit
+
+.box-face--is-top
+  transform: rotateX(-90deg) translateY(-$face-width / 2)
+  transform-origin: top center
+  //background-color: #fafafa
+  background-color: inherit
+
+.box-face--is-bottom
+  transform: rotateX(90deg) translateY($face-width / 2)
+  transform-origin: bottom center
+  //background-color: #bbb
+  background-color: inherit
+
+.box-face--is-front
+  transform: translateZ($face-width / 2)
+  //background-color: #eee
+  background-color: inherit
+
+
+@keyframes spin
+  from
+    transform: rotate3d(0)
+  to
+    transform: rotate3d(0.2, 1, 0.1, 360deg)
+
+.box-faces:hover
+  animation: spin 1.5s infinite ease-in-out

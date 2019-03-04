@@ -85,6 +85,10 @@ function animate() {
 }
 
 function onDocumentMouseDown() {
+  if (!controls.enabled) {
+    return;
+  }
+
   const intersects = controls.raycaster.intersectObjects(world);
   const firstIntersectedObject = intersects.length ? intersects[0].object : null;
   if (firstIntersectedObject) {

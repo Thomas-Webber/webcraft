@@ -18,9 +18,6 @@ let PointerLockControls = function (camera) {
   let moveDown = false;
   let shiftDown = false;
 
-  let isOnObject = false;
-  let canJump = false;
-
   let velocity = new THREE.Vector3();
   this.mouse = new THREE.Vector2(0, 0);
   this.raycaster = new THREE.Raycaster();
