@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  rootUrl: 'localhost:8888',
-  areaLength: 100,
+  rootUrl: 'http://localhost:8888',
+  rootUrlWs: 'ws://localhost:8888'
 };
 
 /*

@@ -1,13 +1,13 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 const COLORS = [
-  '#9400D3',
-  '#4B0082',
-  '#0000FF',
-  '#00FF00',
-  '#FFFF00',
-  '#FF7F00',
-  '#FF0000',
+  0x9400D3,
+  0x4B0082,
+  0x0000FF,
+  0x00FF00,
+  0xFFFF00,
+  0xFF7F00,
+  0xFF0000,
 ];
 
 @Component({
@@ -17,15 +17,15 @@ const COLORS = [
 })
 export class BoxPickerComponent implements OnInit {
   colors = COLORS;
-  colorString = '';
+  colorSelected;
 
   @Input()
-  get color(): string {
-    return this.colorString;
+  get color(): number {
+    return this.colorSelected;
   }
-  set color(val: string) {
-    this.colorString = val;
-    this.colorChange.emit(this.colorString);
+  set color(val: number) {
+    this.colorSelected = val;
+    this.colorChange.emit(this.colorSelected);
   }
 
   @Output() colorChange = new EventEmitter();

@@ -9,6 +9,7 @@ import { ReticleComponent } from './reticle/reticle.component';
 import {AreaLoaderService} from './services/area-loader.service';
 import {HttpClientModule} from '@angular/common/http';
 import {BlockService} from './services/block.service';
+import {WebsocketService} from './services/websocket.service';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import {BlockService} from './services/block.service';
   ],
   providers: [
     BlockService,
-    AreaLoaderService
+    AreaLoaderService,
+    WebsocketService
   ],
   bootstrap: [AppComponent]
 })

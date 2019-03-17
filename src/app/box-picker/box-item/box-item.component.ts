@@ -6,11 +6,16 @@ import {Component, Input, OnInit} from '@angular/core';
   styleUrls: ['./box-item.component.sass']
 })
 export class BoxItemComponent implements OnInit {
-  @Input() color = '#fff';
+  @Input() color = 0xfff;
 
   constructor() { }
 
   ngOnInit() {
+  }
+
+  /* tslint:disable: no-bitwise */
+  formatHex(color: number) {
+    return '#' + ('00000' + (color | 0).toString(16)).substr(-6);
   }
 
 }

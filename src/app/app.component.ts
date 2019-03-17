@@ -4,14 +4,14 @@ import {PointerLockHelper, PointerLockObserver} from '../helpers/PointerLockHelp
 import PointerLockControls from '../control/PointerLockControls';
 import {AreaLoaderService} from './services/area-loader.service';
 import {BlockService} from './services/block.service';
-import {Mesh, Vector3} from 'three';
+import {Mesh} from 'three';
+import {WebsocketService} from './services/websocket.service';
 
 let camera, scene, renderer;
 let controls, time = Date.now();
 let ray;
 let world = [];
 const BOX_SIZE = 10;
-const BOX_COLOR = 0xffffff;
 
 @Component({
   selector: 'app-root',
@@ -23,7 +23,9 @@ export class AppComponent implements OnInit, PointerLockObserver {
   pointerLockHelper: PointerLockHelper;
   color = 0x00FF00;
 
-  constructor(private blockService: BlockService, private areaLoader: AreaLoaderService) {}
+  constructor(private blockService: BlockService,
+              private areaLoader: AreaLoaderService,
+              private websocketClient: WebsocketService) {}
 
   ngOnInit() {
     this.initTHREE();
@@ -85,8 +87,11 @@ export class AppComponent implements OnInit, PointerLockObserver {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     scene.background = new THREE.Color('black');
     document.body.appendChild(renderer.domElement);
-    window.addEventListener('resize', this.onWindowResize.bind(this), false);
-    document.addEventListener('mousedown', this.onDocumentMouseDown.bind(this), false);
+    window.addEventListener('resize', this.onWindowResize.bind(this));
+    document.addEventListener('mousedown', this.onDocumentMouseDown.bind(this));
+
+    // OBSERVERS
+    this.websocketClient.messageSubject.subscribe(this.onBlockMessage);
   }
 
   onWindowResize() {
@@ -110,12 +115,16 @@ export class AppComponent implements OnInit, PointerLockObserver {
     const intersects = controls.raycaster.intersectObjects(world);
     const firstIntersectedObject = intersects.length ? intersects[0].object : null;
     if (firstIntersectedObject) {
-      const cube = this.blockService.buildBlock(firstIntersectedObject.position, this.color);
       const translation = intersects[0].face.normal.clone().multiplyScalar(BOX_SIZE);
+      const cube = this.blockService.buildBlock(firstIntersectedObject.position, this.color);
       cube.position.add(translation);
-      scene.add(cube);
-      world.push(cube);
+      this.websocketClient.sendBuildBlockMessage(cube.position, this.color);
     }
+  }
+
+  onBlockMessage(mesh: Mesh) {
+    scene.add(mesh);
+    world.push(mesh);
   }
 }
 

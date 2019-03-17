@@ -25,22 +25,17 @@ export class AreaLoaderService {
   constructor(private http: HttpClient, private blockService: BlockService) { }
 
   loadArea(areaId: number): Observable<Mesh[]> {
-    const url = `http://${environment.rootUrl}/get`;
+    const url = `${environment.rootUrl}/get`;
     return this.http.get(url).pipe(map((res) => this.generateBlocks(res) ));
   }
 
   generateBlocks(areaDict: any): Mesh[] {
-    console.log(areaDict);
     const keys = Object.keys(areaDict);
-    const positions = keys.map((key: string) => {
+    return keys.map((key: string) => {
       const keyInt = parseInt(key, 10);
-      console.log(keyInt);
       const pos = AreaLoaderService.decodeIntToXYZ(keyInt);
-      console.log(pos);
       return this.blockService.buildBlock(pos, areaDict[keyInt]);
     });
-
-    return positions;
   }
 
 }
