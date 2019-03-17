@@ -2,6 +2,9 @@ import { Component, OnInit} from '@angular/core';
 import * as THREE from 'three';
 import {PointerLockHelper, PointerLockObserver} from '../helpers/PointerLockHelper';
 import PointerLockControls from '../control/PointerLockControls';
+import {AreaLoaderService} from './services/area-loader.service';
+import {BlockService} from './services/block.service';
+import {Vector3} from 'three';
 
 let camera, scene, renderer;
 let controls, time = Date.now();
@@ -19,7 +22,9 @@ const BOX_GEOMETRY = new THREE.BoxGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
 export class AppComponent implements OnInit, PointerLockObserver {
   locked = true;
   pointerLockHelper: PointerLockHelper;
-  color = '#00FF00';
+  color = 0x00FF00;
+
+  constructor(private blockService: BlockService, private areaLoader: AreaLoaderService) {}
 
   ngOnInit() {
     this.initTHREE();
@@ -58,14 +63,16 @@ export class AppComponent implements OnInit, PointerLockObserver {
     scene.add(gridHelper);
 
     // FLOOR
+    this.areaLoader.loadArea(0).subscribe((x) => {
+      console.log(x);
+    });
     const FLOOR_LENGTH = 2;
     for (let x = -FLOOR_LENGTH; x <= FLOOR_LENGTH; x++) {
       for (let z = -FLOOR_LENGTH; z <= FLOOR_LENGTH; z++) {
-        const mat = this.getMaterial(BOX_COLOR - Math.abs(x) * Math.abs(z) * 180);
-        const cube = new THREE.Mesh(BOX_GEOMETRY, mat);
+        const pos = new Vector3(x * 10 + BOX_SIZE / 2, BOX_SIZE / 2, z * 10 + BOX_SIZE / 2);
+        const cube = this.blockService.buildBlock(pos, BOX_COLOR - Math.abs(x) * Math.abs(z) * 180);
         scene.add(cube);
         world.push(cube);
-        cube.position.set(x * 10 + BOX_SIZE / 2, BOX_SIZE / 2, z * 10 + BOX_SIZE / 2);
       }
     }
 
@@ -110,26 +117,12 @@ export class AppComponent implements OnInit, PointerLockObserver {
     const intersects = controls.raycaster.intersectObjects(world);
     const firstIntersectedObject = intersects.length ? intersects[0].object : null;
     if (firstIntersectedObject) {
-      const position = firstIntersectedObject.position;
-      const mat = this.getMaterial();
-      const cube = new THREE.Mesh(BOX_GEOMETRY, mat);
-      cube.position.set(position.x, position.y, position.z);
-
+      const cube = this.blockService.buildBlock(firstIntersectedObject.position, this.color);
       const translation = intersects[0].face.normal.clone().multiplyScalar(BOX_SIZE);
       cube.position.add(translation);
       scene.add(cube);
       world.push(cube);
     }
-  }
-
-  getMaterial(color: number = null) {
-    const colorString = color ? color : this.color;
-    return new THREE.MeshStandardMaterial({
-      color: colorString,
-      roughness: 1,
-      metalness: 0,
-      flatShading: true
-    });
   }
 }
 
