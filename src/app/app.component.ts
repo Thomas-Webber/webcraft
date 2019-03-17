@@ -4,7 +4,7 @@ import {PointerLockHelper, PointerLockObserver} from '../helpers/PointerLockHelp
 import PointerLockControls from '../control/PointerLockControls';
 import {AreaLoaderService} from './services/area-loader.service';
 import {BlockService} from './services/block.service';
-import {Vector3} from 'three';
+import {Mesh, Vector3} from 'three';
 
 let camera, scene, renderer;
 let controls, time = Date.now();
@@ -12,7 +12,6 @@ let ray;
 let world = [];
 const BOX_SIZE = 10;
 const BOX_COLOR = 0xffffff;
-const BOX_GEOMETRY = new THREE.BoxGeometry(BOX_SIZE, BOX_SIZE, BOX_SIZE);
 
 @Component({
   selector: 'app-root',
@@ -62,19 +61,13 @@ export class AppComponent implements OnInit, PointerLockObserver {
     const gridHelper = new THREE.GridHelper(1000, 100);
     scene.add(gridHelper);
 
-    // FLOOR
-    this.areaLoader.loadArea(0).subscribe((x) => {
-      console.log(x);
+    // INIT AREA
+    this.areaLoader.loadArea(0).subscribe((meshes) => {
+      meshes.forEach((mesh: Mesh) => {
+        scene.add(mesh);
+        world.push(mesh);
+      });
     });
-    const FLOOR_LENGTH = 2;
-    for (let x = -FLOOR_LENGTH; x <= FLOOR_LENGTH; x++) {
-      for (let z = -FLOOR_LENGTH; z <= FLOOR_LENGTH; z++) {
-        const pos = new Vector3(x * 10 + BOX_SIZE / 2, BOX_SIZE / 2, z * 10 + BOX_SIZE / 2);
-        const cube = this.blockService.buildBlock(pos, BOX_COLOR - Math.abs(x) * Math.abs(z) * 180);
-        scene.add(cube);
-        world.push(cube);
-      }
-    }
 
     // LIGHTS
     const ambientLight = new THREE.AmbientLight(0x606060, 0.7);
